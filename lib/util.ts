@@ -10,6 +10,6 @@ export const fechaCorta = (iso: string) =>
     timeZone: "America/Argentina/Buenos_Aires",
   }).format(new Date(iso));
 
-/** Número de WhatsApp de la marca (sin + ni espacios). Cambiar por el real. */
-export const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP ?? "5491100000000";
+/** WhatsApp de Marcelo (sin + ni espacios). Se puede cambiar con NEXT_PUBLIC_WHATSAPP en Vercel. */
+export const WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP ?? "5493516192531";
 export const INSTAGRAM = "https://instagram.com/";
