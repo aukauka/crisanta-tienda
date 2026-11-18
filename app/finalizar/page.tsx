@@ -4,16 +4,20 @@ import Link from "next/link";
 import { useState } from "react";
 import { LineasCarrito, useCarrito } from "@/components/Carrito";
 import { pesos } from "@/lib/util";
+import { buscarSku } from "@/lib/productos";
+import { ConsultarAlternativa } from "@/components/ConsultarAlternativa";
 
 export default function Finalizar() {
   const { lineas, total } = useCarrito();
   const [entrega, setEntrega] = useState<"retiro" | "envio">("envio");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
+  const [agotados, setAgotados] = useState<string[]>([]);
 
   async function pagar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setAgotados([]);
     setEnviando(true);
     const f = new FormData(e.currentTarget);
     try {
@@ -32,7 +36,17 @@ export default function Finalizar() {
         }),
       });
       const datos = await res.json();
-      if (!res.ok) throw new Error(datos.error ?? "Algo salió mal");
+      if (!res.ok) {
+        if (Array.isArray(datos.sinStock)) {
+          setAgotados(
+            datos.sinStock.map((sku: string) => {
+              const s = buscarSku(sku);
+              return s ? `${s.producto.nombre} talle ${s.talle}` : sku;
+            }),
+          );
+        }
+        throw new Error(datos.error ?? "Algo salió mal");
+      }
       window.location.href = datos.url;
     } catch (err) {
       setError((err as Error).message);
@@ -94,6 +108,15 @@ export default function Finalizar() {
           )}
 
           {error && <p className="error">{error}</p>}
+          {agotados.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <ConsultarAlternativa
+                titulo={`Se agotó: ${agotados.join(", ")}`}
+                texto="Sacalo del carrito para seguir, o escribile a Marcelo y te ofrece otra opción."
+                mensaje={`Hola Marcelo! Quería comprar ${agotados.join(", ")} pero se agotó. ¿Tenés otra opción parecida?`}
+              />
+            </div>
+          )}
           <button className="boton ancho" disabled={enviando} style={{ marginTop: 10 }}>
             {enviando ? "Un momento…" : `Pagar ${pesos(total)} con Mercado Pago`}
           </button>

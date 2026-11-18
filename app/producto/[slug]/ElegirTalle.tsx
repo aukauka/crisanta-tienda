@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useCarrito } from "@/components/Carrito";
+import { ConsultarAlternativa } from "@/components/ConsultarAlternativa";
 
 type Props = {
   producto: { slug: string; nombre: string; precio: number; imagen: string; talles: string[] };
@@ -19,6 +20,9 @@ export function ElegirTalle({ producto, stock }: Props) {
     : 0;
   const quedan = talle ? stock[talle] - enCarrito : 0;
   const todoAgotado = producto.talles.every((t) => stock[t] === 0);
+
+  const tallesAgotados = producto.talles.filter((t) => stock[t] === 0);
+  const sinElElegido = talle !== null && quedan <= 0;
 
   let nota = "";
   if (todoAgotado) nota = "Sin stock por ahora.";
@@ -70,6 +74,22 @@ export function ElegirTalle({ producto, stock }: Props) {
           {todoAgotado ? "Agotado" : "Agregar al carrito"}
         </button>
       </div>
+      {todoAgotado ? (
+        <ConsultarAlternativa
+          titulo="Este producto se agotó"
+          mensaje={`Hola Marcelo! Quería comprar ${producto.nombre} pero está agotado. ¿Tenés otra opción parecida?`}
+        />
+      ) : sinElElegido ? (
+        <ConsultarAlternativa
+          titulo="¿Necesitás más unidades?"
+          mensaje={`Hola Marcelo! Quería más unidades de ${producto.nombre} talle ${talle}. ¿Tenés otra opción?`}
+        />
+      ) : tallesAgotados.length > 0 ? (
+        <ConsultarAlternativa
+          titulo="¿No está tu talle?"
+          mensaje={`Hola Marcelo! Me interesa ${producto.nombre} pero no hay mi talle (${tallesAgotados.join(", ")}). ¿Tenés otra opción?`}
+        />
+      ) : null}
     </div>
   );
 }
