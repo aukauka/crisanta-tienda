@@ -73,7 +73,7 @@ El sitio corre en **Cloudflare Workers, plan gratis** (permite uso comercial, si
 Configuración del proyecto en Cloudflare (Workers & Pages > Create > Import a repository):
 - Build command: `npx opennextjs-cloudflare build`
 - Deploy command: `npx opennextjs-cloudflare deploy`
-- El nombre del Worker tiene que ser `crisanta-tienda` (igual que en `wrangler.jsonc`).
+- El nombre del Worker es `crisanta-tienda-ropa` (tiene que ser igual al de `wrangler.jsonc`).
 
 Límites del plan gratis: 100.000 visitas a páginas por día (las fotos y archivos no cuentan) y 10 ms de procesador por visita. Si algún día se superan, el sitio muestra un error ese rato; **nunca se cobra solo**. El plan pago cuesta USD 5 por mes.
 
