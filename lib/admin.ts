@@ -2,7 +2,7 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
-// Clave del panel /admin. Se define en Vercel como ADMIN_CLAVE.
+// Clave del panel /admin. Se define en Cloudflare como ADMIN_CLAVE.
 // Mientras no esté cargada, la clave de prueba es "crisanta-prueba".
 export const CLAVE_ADMIN = process.env.ADMIN_CLAVE ?? "crisanta-prueba";
 export const usaClaveDePrueba = !process.env.ADMIN_CLAVE;

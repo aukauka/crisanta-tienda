@@ -30,12 +30,12 @@ Hoy el sitio funciona en **modo de prueba**:
 - El pago es un **simulador** (no se cobra nada).
 - La clave del panel es `crisanta-prueba`.
 
-Para pasar a modo real se cargan estas claves en Vercel (Settings > Environment Variables). No hace falta tocar código. **Las claves secretas no se mandan por chat**: se pegan directo en Vercel.
+Para pasar a modo real se cargan estas claves en Cloudflare (**Workers & Pages > crisanta-tienda > Settings > Variables and Secrets**, tipo *Secret* para las secretas). No hace falta tocar código. **Las claves secretas no se mandan por chat**: se pegan directo en Cloudflare.
 
 ### 1. Base de datos de stock (gratis, Supabase)
 1. Crear una cuenta en [supabase.com](https://supabase.com) y un proyecto nuevo (plan Free).
 2. Ir a **SQL Editor**, pegar todo el contenido de [`supabase/esquema.sql`](supabase/esquema.sql) y apretar **Run**.
-3. Ir a **Project Settings > API** y copiar en Vercel:
+3. Ir a **Project Settings > API** y copiar en Cloudflare:
    - `SUPABASE_URL` = *Project URL*
    - `SUPABASE_SERVICE_ROLE_KEY` = la clave *service_role* (es secreta)
 
@@ -49,7 +49,7 @@ Para pasar a modo real se cargan estas claves en Vercel (Settings > Environment 
 - `ADMIN_CLAVE`: una clave propia para el panel.
 - `NEXT_PUBLIC_WHATSAPP`: el número de WhatsApp de la marca (ej. `5493411234567`).
 
-Después de cambiar claves en Vercel hay que **volver a publicar** (Deployments > ⋯ > Redeploy).
+Las claves de Cloudflare se aplican al guardar. La única excepción es `NEXT_PUBLIC_WHATSAPP`, que se carga en **Settings > Build > Variables and secrets** y necesita una nueva publicación (Deployments > *Retry build*, o cualquier cambio en GitHub).
 
 ## Cómo cambiar productos y fotos
 
@@ -66,11 +66,23 @@ El sitio ya tiene una entrada para que otro sistema lea y cambie el mismo stock.
 
 Ambas llevan el encabezado `Authorization: Bearer <STOCK_API_CLAVE>`.
 
+## Dónde está publicado
+
+El sitio corre en **Cloudflare Workers, plan gratis** (permite uso comercial, sin tarjeta). Cada cambio en la rama `main` de GitHub se publica solo.
+
+Configuración del proyecto en Cloudflare (Workers & Pages > Create > Import a repository):
+- Build command: `npx opennextjs-cloudflare build`
+- Deploy command: `npx opennextjs-cloudflare deploy`
+- El nombre del Worker tiene que ser `crisanta-tienda` (igual que en `wrangler.jsonc`).
+
+Límites del plan gratis: 100.000 visitas a páginas por día (las fotos y archivos no cuentan) y 10 ms de procesador por visita. Si algún día se superan, el sitio muestra un error ese rato; **nunca se cobra solo**. El plan pago cuesta USD 5 por mes.
+
 ## Para programadores
 
 ```bash
 npm install
 npm run dev     # http://localhost:3000
+npm run preview # prueba local con el motor de Cloudflare (http://localhost:8787)
 ```
 
 Next.js 15 (App Router), sin base de datos obligatoria. El stock pasa por `lib/stock/` (modo prueba en memoria o Supabase vía funciones SQL atómicas). El aviso de pago de Mercado Pago llega a `/api/mercadopago/aviso` y siempre se verifica consultando el pago con el Access Token.
